@@ -1,24 +1,20 @@
 // n should be received from main thread
-import { workerData, parentPort } from 'worker_threads';
+import { parentPort } from 'worker_threads';
 
-const nthFibonacci = (n) => n < 2 ? n : nthFibonacci(n - 1) + nthFibonacci(n - 2);
-
-const sendResult = (result) => {
-    // This function sends result of nthFibonacci computations to main thread
-    if (parentPort) {
-        // Отправка сообщения в основной поток
-        parentPort.postMessage(result); 
-      } else {
-        console.error('Parent port is null. Unable to send message.');
-      }
+const nthFibonacci = (n) => {
+    if (n < 2) return n;
+    return nthFibonacci(n - 1) + nthFibonacci(n - 2);
 };
-parentPort.once('online', () => {
+
+if (parentPort) {
     parentPort.on('message', (n) => {
-      try {
-        const result = nthFibonacci(n);
-        sendResult({ status: 'resolved', data: result });
-      } catch (error) {
-        sendResult({ status: 'error', data: null });
-      }
+        try {
+            const result = nthFibonacci(n);
+            parentPort.postMessage({ status: 'resolved', data: result });
+        } catch (error) {
+            parentPort.postMessage({ status: 'error', data: null });
+        }
     });
-  });
+} else {
+    console.error("This script must be run as a worker thread.");
+}

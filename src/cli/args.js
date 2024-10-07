@@ -11,4 +11,4 @@ const parseArgs = () => {
     Object.entries(parsedArgs).forEach(([key, value]) => console.log(`${key} is ${value}`));
 };
 
-parseArgs();
+parseArgs();//ввод в консоль: node args.js --name John --age 30
